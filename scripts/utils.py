@@ -1,5 +1,7 @@
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as f
+import requests
+import json
 
 def init_spark(app_name):
     """Init spark session"""
@@ -27,7 +29,8 @@ def preprocess_data(df):
 
     df = cast_cols(df, integer_cols, "integer")
     df = cast_cols(df, float_cols, "float")
-    df = df.withColumn("transaction_date", f.to_date(f.col("transaction_date"), "yyyy-mm-dd"))
+    # df = df.withColumn("transaction_date", f.to_date(f.col("transaction_date"), "yyyy-MM-dd"))
+    df = df.withColumn("transaction_date", f.date_format(f.col("transaction_date"), "yyyy-MM-dd"))
 
     df = df.select(string_cols + date_cols + integer_cols + float_cols)
     df = df.toDF(*[col.lower() for col in df.columns])
@@ -46,3 +49,34 @@ def preprocess_data(df):
 def save_data(df, output_path):
     """Save the processed data"""
     df.coalesce(1).write.mode("overwrite").option("header", True).csv(output_path)
+
+def create_index(es_host, es_port, es_index, mapping_file):
+    """Create an Elasticsearch index with specified mapping json file"""
+    url = f"http://{es_host}:{es_port}/{es_index}"
+    if requests.head(url).status_code == 200:
+        print(f"📌 Index {url} already exists")
+        return
+    with open(mapping_file, "r") as f:
+        mapping = json.load(f)
+
+    response = requests.put(url, headers={"Content-Type": "application/json"}, data=json.dumps(mapping))
+    if response.status_code == 200:
+        print(f"✅ Index {url} created")
+    else:
+        print(f"❌ Index {url} failed, Error: {response.text}")
+
+def save_to_elasticsearch(df, host, port, es_index):
+    """index processed data to elasticsearch"""
+    es_conf = {
+        "es.nodes": host,
+        "es.port": port,
+        "es.resource": f"{es_index}",
+        "es.nodes.wan.only": "true",
+        "es.http.timeout": "5m",
+        "es.batch.size.entries": "5000"
+    }
+
+    try:
+        df.write.format("org.elasticsearch.spark.sql").options(**es_conf).mode("overwrite").save(f"{es_index}/")
+    except Exception as e:
+        print(e)

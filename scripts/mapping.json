@@ -1,0 +1,44 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "properties": {
+      "transaction_date": {
+        "type": "date",
+        "format": "yyyy-MM-dd"
+      },
+      "payment_method": {
+        "type": "keyword"
+      },
+      "product_category": {
+        "type": "keyword"
+      },
+      "device_used": {
+        "type": "keyword"
+      },
+      "is_fraudulent": {
+        "type": "keyword"
+      },
+      "transaction_hour": {
+        "type": "keyword"
+      },
+      "quantity": {
+        "type": "integer"
+      },
+      "customer_age": {
+        "type": "integer"
+      },
+      "account_age_days": {
+        "type": "integer"
+      },
+      "transaction_amount": {
+        "type": "float"
+      },
+      "nb_transaction": {
+        "type": "integer"
+      }
+    }
+  }
+}
