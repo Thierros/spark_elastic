@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 def main():
 
     if len(sys.argv) != 4:
-        print("Usage: spark-submit load_to_elasticsearch_job.py <input_csv_path> <output_dir_path>")
+        print("Usage: spark-submit load_to_elasticsearch_job.py <input_csv_path> <elastic search index name> <mapping json file >")
         sys.exit(1)
 
     input_path = sys.argv[1]
@@ -27,7 +27,7 @@ def main():
         # load data
         print(f"📥 Loading data from csv files from : {input_path}")
         data = load_data(spark, input_path)
-        print(f"📂 Fichiers chargés : {data.inputFiles()}")
+        print(f"📂 file loaded successfully : {data.inputFiles()}")
 
         # preprocess data
         logging.info("🔄 data processing...")
@@ -40,14 +40,14 @@ def main():
         # create the index
         create_index(es_host, es_port, es_index, mapping_file)
 
-        # Indexation dans Elasticsearch
-        logging.info(f"📤 Indexation des données dans Elasticsearch ({es_index})...")
+        # call function to index data into elasticsearch
+        logging.info(f"📤 Index data into ({es_index}) index ...")
         save_to_elasticsearch(data, es_host, es_port, es_index)
     except Exception as e:
-        logging.error(f"❌ Erreur rencontrée : {e}", exc_info=True)
+        logging.error(f"❌ Encountered error : {e}", exc_info=True)
     finally:
         # close spark session
-        logging.info("✅ Fermeture de la session Spark.")
+        logging.info("✅ Closing spark session...")
         spark.stop()
 
 
