@@ -7,7 +7,7 @@
     "properties": {
       "transaction_date": {
         "type": "date",
-        "format": "yyyy-MM-dd"
+        "format": "yyyy-MM-dd ||epoch_millis"
       },
       "payment_method": {
         "type": "keyword"
