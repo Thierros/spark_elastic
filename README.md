@@ -1,5 +1,5 @@
-# Data pipline project with Apache Spark and Elasticsearch
-![sparkelastic.png](sparkingflow.drawio.png)
+# Data pipeline project with Apache Spark and Elasticsearch
+![sparkelastic.png](sparkelastic.png)
 
 # Project overview
 This project focuses on building a scalable data pipeline using Apache Spark for transformation and Elasticsearch for indexing and searching.
